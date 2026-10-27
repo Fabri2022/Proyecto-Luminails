@@ -110,8 +110,16 @@ on conflict (slug) do update
   set nombre = excluded.nombre, descripcion = excluded.descripcion,
       precio = excluded.precio, duracion_min = excluded.duracion_min, orden = excluded.orden;
 
--- EJEMPLO: ajustar con Agustina los días y horarios reales de atención.
+-- Horarios reales de LumiNails Studio (dia_semana: 0 = domingo ... 6 = sábado). Domingo cerrado.
 -- (Si ya los cargaste, no vuelvas a ejecutar este bloque para no duplicarlos.)
 insert into horarios_atencion (dia_semana, desde, hasta)
-select d, time '15:00', time '20:00' from generate_series(2, 6) as d   -- martes a sábado
+select v.d, v.desde::time, v.hasta::time
+from (values
+  (1, '15:00', '17:30'),  -- lunes
+  (2, '15:00', '17:30'),  -- martes
+  (3, '15:00', '18:00'),  -- miércoles
+  (4, '15:00', '18:00'),  -- jueves
+  (5, '15:00', '18:00'),  -- viernes
+  (6, '14:00', '21:00')   -- sábado
+) as v(d, desde, hasta)
 where not exists (select 1 from horarios_atencion);
