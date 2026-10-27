@@ -1,36 +1,54 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# LumiNails Studio · reservas de turnos
 
-## Getting Started
+Web app para reservar turnos de uñas: la clienta elige servicio, día y horario, paga la seña
+por Mercado Pago y recibe la confirmación. MIA, la asistente con IA, responde dudas y consulta
+los horarios reales. Proyecto del concurso «Desarrollando el futuro · La Rioja 2026».
 
-First, run the development server:
+## Estado
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+| Parte | Estado |
+|---|---|
+| Landing (inicio) | ✅ lista (falta reemplazar fotos y testimonios de ejemplo) |
+| Base de datos (`supabase/schema.sql`) | ✅ escrita, falta ejecutarla en Supabase |
+| Calendario y reserva | ⏳ miércoles |
+| Seña con Mercado Pago (prueba) | ⏳ jueves |
+| MIA con Gemini | ⏳ viernes |
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Poner en marcha (paso a paso)
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+1. **Supabase**: crear un proyecto (región *South America*). Ir a **SQL Editor**, pegar el
+   contenido de `supabase/schema.sql` y apretar **Run**.
+2. **Variables**: copiar `.env.example` como `.env.local` y completar los valores
+   (Supabase → *Project Settings → API*). **Las claves secretas nunca se suben a GitHub ni se
+   pegan en chats.**
+3. **Probar en la compu**:
+   ```bash
+   npm install
+   npm run dev      # abrir http://localhost:3000
+   ```
+4. **Publicar**: subir el código a GitHub. En Vercel, *Add New → Project* y elegir el repositorio.
+   Cargar las mismas variables en *Settings → Environment Variables*. Cada cambio en `main`
+   se publica solo.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Dónde cambiar cosas
 
-## Learn More
+- Textos y secciones de la landing: `src/app/page.tsx`
+- Servicios y precios: `src/data/servicios.ts` (después salen de la base de datos)
+- Testimonios: `src/data/testimonios.ts` — **solo opiniones reales con permiso**; los de ejemplo
+  llevan la etiqueta «Ejemplo» hasta que se reemplacen
+- Colores: `src/app/globals.css` (Rosa pétalo, Rosa suave, Cacao, Oro champagne, Blush)
+- Logo e íconos: `public/` (kit completo de marca aparte)
 
-To learn more about Next.js, take a look at the following resources:
+## Reglas del proyecto
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- **Datos de prueba** en la demo: nombres y teléfonos inventados. Antes de usar datos de personas
+  reales hay que revisar permisos (lo pide el reglamento).
+- **A la IA nunca se le envían nombres ni teléfonos**, solo la pregunta y los horarios libres.
+- Mercado Pago: **credenciales de prueba** (`TEST-...`). No se cobra dinero real.
+- Un solo botón principal por pantalla: «Reservá tu turno».
+- Los alumnos deben poder explicar cada parte: se construye entre todos, paso a paso.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Tecnologías
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Next.js · React · Tailwind CSS · Supabase (PostgreSQL) · Mercado Pago (Checkout Pro, modo prueba) ·
+Gemini (Google AI Studio) · Vercel. Fuentes: Cormorant Garamond y Montserrat (licencia SIL OFL).

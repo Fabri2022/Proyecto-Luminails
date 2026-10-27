@@ -1,0 +1,13 @@
+{
+  "name": "LumiNails Studio",
+  "short_name": "LumiNails",
+  "start_url": "/",
+  "display": "standalone",
+  "theme_color": "#E2A3B1",
+  "background_color": "#FBEFEA",
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
