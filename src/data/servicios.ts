@@ -55,3 +55,11 @@ export function formatearDuracion(min: number): string {
   if (m === 0) return h === 1 ? "1 hora" : `${h} horas`;
   return `${h} h ${m} min`;
 }
+
+// Adicionales: se suman a un servicio (no se reservan solos).
+export type Adicional = { id: string; nombre: string; precio: number; foto: string };
+
+export const ADICIONALES: Adicional[] = [
+  { id: "nail-art", nombre: "Nail Art", precio: 2000, foto: "/fotos/nail-art.jpg" },
+  { id: "pedreria", nombre: "Pedrería", precio: 1000, foto: "/fotos/pedreria.jpg" },
+];
