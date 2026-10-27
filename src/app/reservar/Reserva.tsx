@@ -28,6 +28,10 @@ export default function Reserva() {
   const [hora, setHora] = useState<number | null>(null);
   const [nombre, setNombre] = useState("");
   const [telefono, setTelefono] = useState("");
+  const [enviando, setEnviando] = useState(false);
+  const [errorReserva, setErrorReserva] = useState("");
+  const [reserva, setReserva] = useState<{ turnoId: string; expiraEn: string } | null>(null);
+  const [restante, setRestante] = useState(0);
 
   const servicio = SERVICIOS.find((s) => s.id === servicioId)!;
   const total = servicio.precio + ADICIONALES.filter((a) => extras.includes(a.id)).reduce((t, a) => t + a.precio, 0);
@@ -40,6 +44,31 @@ export default function Reserva() {
       .catch(() => vigente && setError(true));
     return () => { vigente = false; };
   }, [mes, servicio.duracionMin]);
+
+  useEffect(() => {
+    if (!reserva) return;
+    const t = setInterval(() => setRestante(Math.max(0, Math.floor((new Date(reserva.expiraEn).getTime() - Date.now()) / 1000))), 1000);
+    return () => clearInterval(t);
+  }, [reserva]);
+
+  async function reservar() {
+    if (!listo || fecha === null || hora === null) return;
+    setEnviando(true); setErrorReserva("");
+    try {
+      const r = await fetch("/api/reservar", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ servicio: servicioId, adicionales: extras, fecha, hora, nombre, telefono }),
+      });
+      const j = await r.json();
+      if (!r.ok) {
+        setErrorReserva(j.error ?? "No pudimos reservar.");
+        if (r.status === 409) setMes({ ...mes }); // recarga los horarios
+      } else {
+        setReserva(j); setRestante(600);
+      }
+    } catch { setErrorReserva("Sin conexión. Probá de nuevo."); }
+    setEnviando(false);
+  }
 
   const primerDow = (new Date(Date.UTC(mes.y, mes.m, 1)).getUTCDay() + 6) % 7; // lunes = 0
   const cantDias = new Date(Date.UTC(mes.y, mes.m + 1, 0)).getUTCDate();
@@ -56,6 +85,25 @@ export default function Reserva() {
   const fechaTexto = fecha
     ? (() => { const [y, m, d] = fecha.split("-").map(Number); return `${DIAS_LARGO[new Date(Date.UTC(y, m - 1, d)).getUTCDay()]} ${d} de ${MESES[m - 1].toLowerCase()}`; })()
     : "";
+
+  if (reserva) {
+    const mm = String(Math.floor(restante / 60)).padStart(2, "0"), ss = String(restante % 60).padStart(2, "0");
+    return (
+      <main className="mx-auto w-full max-w-xl px-4 pt-10 text-center">
+        <Image src="/logo/LumiNails_simbolo.svg" alt="" width={80} height={80} className="mx-auto" />
+        <h1 className="mt-4 font-serif text-4xl font-semibold">Tu horario está reservado</h1>
+        <p className="mt-2">Lo guardamos para vos durante <strong>{mm}:{ss}</strong>. Pagá la seña para confirmarlo.</p>
+        <div className="card-suave mt-6 p-5 text-left">
+          <p className="font-bold">{servicio.nombre}{extras.length ? " + " + ADICIONALES.filter((a) => extras.includes(a.id)).map((a) => a.nombre).join(" + ") : ""}</p>
+          <p>{fechaTexto} · {formatearHora(hora!)} hs</p>
+          <p className="mt-3 flex justify-between"><span>Total</span><span>{formatearPrecio(total)}</span></p>
+          <p className="flex justify-between font-bold"><span>Seña a pagar ahora</span><span>{formatearPrecio(SENA)}</span></p>
+        </div>
+        <button className="btn-cta mt-6 w-full" disabled>Pagar seña con Mercado Pago (próximo paso)</button>
+        {restante === 0 && <p className="mt-4 font-semibold" role="alert">El tiempo terminó. <Link className="underline" href="/reservar">Elegí un horario de nuevo</Link>.</p>}
+      </main>
+    );
+  }
 
   return (
     <main className="mx-auto w-full max-w-xl px-4 pb-32 pt-6">
@@ -157,8 +205,9 @@ export default function Reserva() {
             <span>{servicio.nombre}{hora !== null && fecha ? ` · ${fechaTexto} ${formatearHora(hora)}` : ""}</span>
             <span>Total {formatearPrecio(total)}</span>
           </p>
-          <button disabled={!listo} className="btn-cta w-full disabled:opacity-50" onClick={() => alert(`Seña a pagar: ${formatearPrecio(SENA)}`)}>
-            {listo ? `Continuar: seña de ${formatearPrecio(SENA)}` : "Completá los pasos para seguir"}
+          {errorReserva && <p className="mb-2 text-sm font-semibold" role="alert">{errorReserva}</p>}
+          <button disabled={!listo || enviando} className="btn-cta w-full disabled:opacity-50" onClick={reservar}>
+            {enviando ? "Reservando…" : listo ? `Reservar y pagar seña de ${formatearPrecio(SENA)}` : "Completá los pasos para seguir"}
           </button>
         </div>
       </div>
