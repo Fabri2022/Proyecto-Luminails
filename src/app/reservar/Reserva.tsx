@@ -61,7 +61,7 @@ export default function Reserva() {
       });
       const j = await r.json();
       if (!r.ok) {
-        setErrorReserva(j.error ?? "No pudimos reservar.");
+        setErrorReserva((j.error ?? "No pudimos reservar.") + (j.codigo ? ` (${j.codigo})` : ""));
         if (r.status === 409) setMes({ ...mes }); // recarga los horarios
       } else {
         setReserva(j); setRestante(600);

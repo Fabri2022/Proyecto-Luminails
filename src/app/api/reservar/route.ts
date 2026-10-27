@@ -27,11 +27,13 @@ export async function POST(req: Request) {
     const db = supabaseServidor();
 
     // 2) Precio y duración salen de la base, no del navegador
-    const { data: serv } = await db.from("servicios").select("id,precio,duracion_min").eq("slug", c.servicio ?? "").eq("activo", true).single();
+    const { data: serv, error: errServ } = await db.from("servicios").select("id,precio,duracion_min").eq("slug", c.servicio ?? "").eq("activo", true).single();
+    if (errServ && errServ.code !== "PGRST116") throw new Error(`servicios: ${errServ.code} ${errServ.message}`);
     if (!serv) return NextResponse.json({ error: "Servicio inexistente" }, { status: 400 });
 
     // 3) Verificar que ese horario realmente esté libre (misma regla que el calendario)
-    await db.rpc("liberar_turnos_vencidos");
+    const { error: errLib } = await db.rpc("liberar_turnos_vencidos");
+    if (errLib) throw new Error(`liberar_turnos_vencidos: ${errLib.code} ${errLib.message}`);
     const [y, m, d] = c.fecha!.split("-").map(Number);
     const inicio = new Date(Date.UTC(y, m - 1, d, 0, c.hora!) + OFFSET_MS);
     const fin = new Date(inicio.getTime() + serv.duracion_min * 60000);
@@ -60,12 +62,19 @@ export async function POST(req: Request) {
       expira_en: new Date(Date.now() + RETENCION_MIN * 60000).toISOString(),
     }).select("id,expira_en").single();
 
+    if (error && error.code !== "23P01") console.error("[reservar] insert:", error.code, error.message);
     if (error) {
       const choque = error.code === "23P01"; // exclusion_violation: otro turno ganó de mano
       return NextResponse.json({ error: choque ? "Alguien acaba de reservar ese horario. Elegí otro." : "No pudimos reservar. Probá de nuevo." }, { status: choque ? 409 : 500 });
     }
     return NextResponse.json({ turnoId: turno.id, expiraEn: turno.expira_en, total, sena: SENA });
-  } catch {
-    return NextResponse.json({ error: "Problema técnico. Probá de nuevo en un momento." }, { status: 500 });
+  } catch (e) {
+    const msg = e instanceof Error ? e.message : String(e);
+    console.error("[reservar] fallo:", msg); // visible en Vercel → Logs
+    const config = msg.includes("SUPABASE_SERVICE_ROLE_KEY");
+    return NextResponse.json({
+      error: "Problema técnico. Probá de nuevo en un momento.",
+      codigo: config ? "FALTA_CLAVE_SERVIDOR" : "ERROR_INTERNO", // sin datos sensibles
+    }, { status: 500 });
   }
 }
