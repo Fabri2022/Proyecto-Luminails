@@ -8,6 +8,8 @@ export type Servicio = {
   descripcion: string;
   duracionMin: number;
   precio: number;
+  foto: string;
+  fotoAlt: string;
 };
 
 export const SENA = 2000;
@@ -15,6 +17,8 @@ export const SENA = 2000;
 export const SERVICIOS: Servicio[] = [
   {
     id: "semipermanente",
+    foto: "/fotos/semipermanente.jpg",
+    fotoAlt: "Uñas largas con esmalte rosa semipermanente brillante",
     nombre: "Semipermanente",
     descripcion: "Color y brillo parejos que duran semanas.",
     duracionMin: 60,
@@ -22,6 +26,8 @@ export const SERVICIOS: Servicio[] = [
   },
   {
     id: "kapping",
+    foto: "/fotos/kapping.jpg",
+    fotoAlt: "Uñas almendradas rosa claro con acabado de kapping",
     nombre: "Kapping",
     descripcion: "Refuerzo para tus uñas naturales.",
     duracionMin: 90,
@@ -29,6 +35,8 @@ export const SERVICIOS: Servicio[] = [
   },
   {
     id: "soft-gel",
+    foto: "/fotos/soft-gel.jpg",
+    fotoAlt: "Uñas soft gel largas con degradé gris y azul",
     nombre: "Soft Gel",
     descripcion: "Extensión liviana con acabado suave.",
     duracionMin: 120,

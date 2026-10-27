@@ -30,7 +30,7 @@ function Encabezado() {
             priority
           />
         </a>
-        <Cta className="sm" />
+        <span className="hidden md:inline-flex"><Cta className="sm" /></span>
       </div>
     </header>
   );
@@ -107,9 +107,14 @@ function Servicios() {
       <ul className="mt-8 grid gap-4 md:grid-cols-3">
         {SERVICIOS.map((s) => (
           <li key={s.id} className="card-suave overflow-hidden">
-            {/* Reemplazar por una foto real del trabajo (sin el logo viejo) en /public/fotos */}
-            <div className="flex h-28 items-center justify-center bg-gradient-to-br from-rosa-suave to-blush">
-              <Destello className="h-8 w-8 text-oro" />
+            <div className="relative aspect-[4/3] w-full overflow-hidden">
+              <Image
+                src={s.foto}
+                alt={s.fotoAlt}
+                fill
+                sizes="(min-width: 768px) 33vw, 100vw"
+                className="object-cover"
+              />
             </div>
             <div className="p-6">
               <h3 className="text-xl font-bold">{s.nombre}</h3>
@@ -242,7 +247,7 @@ function CtaFinal() {
 
 function Pie() {
   return (
-    <footer className="bg-cacao pb-10 text-center text-sm text-blush/90">
+    <footer className="bg-cacao pb-28 md:pb-10 text-center text-sm text-blush/90">
       <div className="mx-auto max-w-5xl border-t border-blush/20 px-5 pt-8">
         <Image
           src="/logo/LumiNails_horizontal_sobre-oscuro.svg"
@@ -272,6 +277,7 @@ export default function Home() {
         <CtaFinal />
       </main>
       <Pie />
+      <div className="cta-fija"><Cta className="w-full" /></div>
     </>
   );
 }
