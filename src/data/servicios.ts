@@ -17,8 +17,8 @@ export const SENA = 2000;
 export const SERVICIOS: Servicio[] = [
   {
     id: "semipermanente",
-    foto: "/fotos/semipermanente.jpg",
-    fotoAlt: "Uñas largas con esmalte rosa semipermanente brillante",
+    foto: "/trabajos/semipermanente-1.jpg",
+    fotoAlt: "Uñas cortas con esmalte semipermanente rosa perlado",
     nombre: "Semipermanente",
     descripcion: "Color y brillo parejos que duran semanas.",
     duracionMin: 60,
@@ -26,8 +26,8 @@ export const SERVICIOS: Servicio[] = [
   },
   {
     id: "kapping",
-    foto: "/fotos/kapping.jpg",
-    fotoAlt: "Uñas almendradas rosa claro con acabado de kapping",
+    foto: "/trabajos/kapping-2.jpg",
+    fotoAlt: "Uñas almendradas en rosa claro con acabado de kapping",
     nombre: "Kapping",
     descripcion: "Refuerzo para tus uñas naturales.",
     duracionMin: 90,
@@ -35,7 +35,7 @@ export const SERVICIOS: Servicio[] = [
   },
   {
     id: "soft-gel",
-    foto: "/fotos/soft-gel.jpg",
+    foto: "/trabajos/soft-gel-2.jpg",
     fotoAlt: "Uñas soft gel largas con degradé gris y azul",
     nombre: "Soft Gel",
     descripcion: "Extensión liviana con acabado suave.",
@@ -60,6 +60,6 @@ export function formatearDuracion(min: number): string {
 export type Adicional = { id: string; nombre: string; precio: number; foto: string };
 
 export const ADICIONALES: Adicional[] = [
-  { id: "nail-art", nombre: "Nail Art", precio: 2000, foto: "/fotos/nail-art.jpg" },
-  { id: "pedreria", nombre: "Pedrería", precio: 1000, foto: "/fotos/pedreria.jpg" },
+  { id: "nail-art", nombre: "Nail Art", precio: 2000, foto: "/trabajos/nail-art-1.jpg" },
+  { id: "pedreria", nombre: "Pedrería", precio: 1000, foto: "/trabajos/pedreria-2.jpg" },
 ];
