@@ -247,15 +247,33 @@ function Equipo() {
   );
 }
 
+const TRATAMIENTOS_VARONES = ["Uñas", "Depilación", "Limpieza facial"];
+
 function Proximamente() {
   return (
     <section className="mx-auto max-w-5xl px-5 py-14">
-      <div className="card-suave p-8 text-center">
+      <div className="text-center">
         <span className="inline-block rounded-full bg-oro/25 px-4 py-1.5 text-sm font-bold">Próximamente</span>
-        <h2 className="mt-4 font-serif text-3xl font-semibold sm:text-4xl">Tienda LumiNails</h2>
-        <p className="mx-auto mt-3 max-w-md leading-relaxed">
-          Esmaltes, limas y todo lo que necesitás para cuidar tus uñas en casa.
-        </p>
+        <h2 className="mt-4 font-serif text-3xl font-semibold sm:text-4xl">Lo que viene en LumiNails</h2>
+      </div>
+      <div className="mt-8 grid gap-4 md:grid-cols-2">
+        <div className="card-suave p-8 text-center">
+          <h3 className="font-serif text-2xl font-semibold">Tienda LumiNails</h3>
+          <p className="mx-auto mt-3 max-w-md leading-relaxed">
+            Esmaltes, limas y todo lo que necesitás para cuidar tus uñas en casa.
+          </p>
+        </div>
+        <div className="card-suave p-8 text-center">
+          <h3 className="font-serif text-2xl font-semibold">Tratamientos para varones</h3>
+          <p className="mx-auto mt-3 max-w-md leading-relaxed">
+            Cuidado personal pensado para ellos. Pronto vas a poder reservar también estos turnos:
+          </p>
+          <ul className="mt-4 flex flex-wrap justify-center gap-2">
+            {TRATAMIENTOS_VARONES.map((t) => (
+              <li key={t} className="rounded-full bg-rosa-suave px-4 py-1.5 text-sm font-semibold">{t}</li>
+            ))}
+          </ul>
+        </div>
       </div>
     </section>
   );
