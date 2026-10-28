@@ -305,16 +305,22 @@ function Pie() {
           height={86}
           className="mx-auto h-10 w-auto"
         />
-        <p className="mt-4">
-          <a
-            href="https://www.instagram.com/luminails._studio"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="font-semibold underline underline-offset-4"
-          >
-            Seguinos en Instagram @luminails._studio
-          </a>
-        </p>
+        <a
+          href="https://www.instagram.com/luminails._studio"
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label="Seguinos en Instagram: @luminails._studio"
+          className="mx-auto mt-5 inline-flex min-h-12 items-center gap-3 rounded-full border border-blush/40 py-1.5 pl-1.5 pr-5 font-semibold hover:bg-blush/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blush"
+        >
+          <span className="flex h-9 w-9 items-center justify-center rounded-full bg-blush text-cacao">
+            <svg viewBox="0 0 24 24" aria-hidden="true" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M4 8h3l1.5-2h7L17 8h3v11H4z" />
+              <circle cx="12" cy="13" r="3.5" />
+            </svg>
+          </span>
+          Seguinos
+          <span className="font-normal opacity-80">@luminails._studio</span>
+        </a>
         <p className="mt-2">La Rioja, Argentina · © 2026 LumiNails Studio</p>
       </div>
     </footer>
