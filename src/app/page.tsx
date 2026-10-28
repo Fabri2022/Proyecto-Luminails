@@ -311,6 +311,10 @@ function Pie() {
           </span>
           Seguinos
         </a>
+        <p className="mt-4 flex justify-center gap-4">
+          <a href="/privacidad" className="underline underline-offset-4">Privacidad</a>
+          <a href="/terminos" className="underline underline-offset-4">Términos y condiciones</a>
+        </p>
         <p className="mt-2">La Rioja, Argentina · © 2026 LumiNails Studio</p>
       </div>
     </footer>

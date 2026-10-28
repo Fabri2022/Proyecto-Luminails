@@ -28,6 +28,7 @@ export function Mia() {
   const [elegida, setElegida] = useState<Opcion | null>(null);
   const [nombre, setNombre] = useState("");
   const [telefono, setTelefono] = useState("");
+  const [acepta, setAcepta] = useState(false);
   const [yendo, setYendo] = useState(false);
   const [errorPago, setErrorPago] = useState("");
   const fin = useRef<HTMLDivElement>(null);
@@ -79,7 +80,7 @@ export function Mia() {
     } catch { setErrorPago("Sin conexión. Probá de nuevo."); }
     setYendo(false);
   }
-  const datosOk = nombre.trim().length >= 2 && telefono.replace(/\D/g, "").length >= 8;
+  const datosOk = nombre.trim().length >= 2 && telefono.replace(/\D/g, "").length >= 8 && acepta;
 
   return (
     <>
@@ -127,6 +128,10 @@ export function Mia() {
                 </label>
                 <label className="mt-2 block text-sm font-semibold">Teléfono (WhatsApp)
                   <input value={telefono} onChange={(e) => setTelefono(e.target.value)} inputMode="tel" autoComplete="tel" className="mt-1 block min-h-11 w-full rounded-xl bg-white px-3 text-base ring-1 ring-cacao/25" />
+                </label>
+                <label className="mt-3 flex items-start gap-2 text-xs">
+                  <input type="checkbox" checked={acepta} onChange={(e) => setAcepta(e.target.checked)} className="mt-0.5 size-5 shrink-0 accent-[#4a2e35]" />
+                  <span>Acepto los <Link href="/terminos" target="_blank" className="font-semibold underline">términos</Link> y la <Link href="/privacidad" target="_blank" className="font-semibold underline">política de privacidad</Link>.</span>
                 </label>
                 {errorPago && <p className="mt-2 text-sm font-semibold" role="alert">{errorPago}</p>}
                 <button type="button" onClick={reservarYPagar} disabled={!datosOk || yendo} className="btn-cta mt-3 w-full disabled:opacity-50">

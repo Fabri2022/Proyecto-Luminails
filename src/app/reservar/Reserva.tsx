@@ -28,6 +28,7 @@ export default function Reserva() {
   const [hora, setHora] = useState<number | null>(null);
   const [nombre, setNombre] = useState("");
   const [telefono, setTelefono] = useState("");
+  const [acepta, setAcepta] = useState(false);
   const [enviando, setEnviando] = useState(false);
   const [errorReserva, setErrorReserva] = useState("");
   const [reserva, setReserva] = useState<{ turnoId: string; expiraEn: string } | null>(null);
@@ -98,7 +99,7 @@ export default function Reserva() {
 
   const horas = fecha && dias ? dias[fecha] ?? [] : [];
   const telOk = telefono.replace(/\D/g, "").length >= 8;
-  const listo = fecha !== null && hora !== null && nombre.trim().length >= 2 && telOk;
+  const listo = fecha !== null && hora !== null && nombre.trim().length >= 2 && telOk && acepta;
   const fechaTexto = fecha
     ? (() => { const [y, m, d] = fecha.split("-").map(Number); return `${DIAS_LARGO[new Date(Date.UTC(y, m - 1, d)).getUTCDay()]} ${d} de ${MESES[m - 1].toLowerCase()}`; })()
     : "";
@@ -215,6 +216,10 @@ export default function Reserva() {
           </label>
           <label className="mt-3 block text-sm font-semibold">Teléfono (WhatsApp)
             <input value={telefono} onChange={(e) => setTelefono(e.target.value)} inputMode="tel" autoComplete="tel" className="mt-1 block min-h-12 w-full rounded-2xl bg-white px-4 text-base ring-1 ring-cacao/25" />
+          </label>
+          <label className="mt-4 flex items-start gap-3 text-sm">
+            <input type="checkbox" checked={acepta} onChange={(e) => setAcepta(e.target.checked)} className="mt-0.5 size-6 shrink-0 accent-[#4a2e35]" />
+            <span>Leí y acepto los <Link href="/terminos" target="_blank" className="font-semibold underline">términos y condiciones</Link> y la <Link href="/privacidad" target="_blank" className="font-semibold underline">política de privacidad</Link>.</span>
           </label>
         </section>
       )}

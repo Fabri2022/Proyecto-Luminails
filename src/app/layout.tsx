@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import { Mia } from "@/components/Mia";
+import { AvisoCookies } from "@/components/AvisoCookies";
 
 export const metadata: Metadata = {
   title: "LumiNails Studio · Reservá tu turno de uñas en La Rioja",
@@ -27,6 +28,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     <html lang="es-AR" className="h-full">
       <body className="min-h-full flex flex-col">{children}
         <Mia />
+        <AvisoCookies />
       </body>
     </html>
   );
