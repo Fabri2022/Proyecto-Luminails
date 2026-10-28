@@ -22,6 +22,7 @@ const SUGERENCIAS = ["¿Qué horarios hay el viernes?", "¿Cuánto dura el Kappi
 
 export function Mia() {
   const [abierta, setAbierta] = useState(false);
+  const [arriba, setArriba] = useState(true); // en el celular el botón solo se ve al entrar, arriba de todo
   const [msgs, setMsgs] = useState<Msg[]>([SALUDO]);
   const [texto, setTexto] = useState("");
   const [cargando, setCargando] = useState(false);
@@ -34,6 +35,11 @@ export function Mia() {
   const fin = useRef<HTMLDivElement>(null);
   const campo = useRef<HTMLInputElement>(null);
 
+  useEffect(() => {
+    const alScroll = () => setArriba(window.scrollY < 80);
+    window.addEventListener("scroll", alScroll, { passive: true });
+    return () => window.removeEventListener("scroll", alScroll);
+  }, []);
   useEffect(() => { fin.current?.scrollIntoView({ block: "end" }); }, [msgs, cargando, abierta, elegida]);
   useEffect(() => { if (abierta) campo.current?.focus(); }, [abierta]);
   useEffect(() => {
@@ -86,7 +92,7 @@ export function Mia() {
     <>
       {!abierta && (
         <button type="button" onClick={() => setAbierta(true)} aria-label="Hablar con MIA, la asistente de turnos"
-          className="fixed right-4 bottom-24 z-40 inline-flex min-h-14 items-center gap-2 rounded-full bg-cacao px-5 font-bold text-hueso shadow-lg md:bottom-6 focus-visible:outline-3 focus-visible:outline-offset-3 focus-visible:outline-cacao">
+          className={`fixed right-4 bottom-24 z-40 inline-flex min-h-14 items-center gap-2 rounded-full bg-cacao px-5 font-bold text-hueso shadow-lg transition-[opacity,transform] duration-300 md:bottom-6 md:translate-y-0 md:opacity-100 md:pointer-events-auto ${arriba ? "" : "pointer-events-none translate-y-6 opacity-0"} focus-visible:outline-3 focus-visible:outline-offset-3 focus-visible:outline-cacao`}>
           <svg viewBox="0 0 24 24" aria-hidden="true" className="size-5 text-rosa-suave" fill="currentColor"><path d="M12 0Q12.9 11.1 24 12Q12.9 12.9 12 24Q11.1 12.9 0 12Q11.1 11.1 12 0Z" /></svg>
           Hablá con MIA
         </button>
