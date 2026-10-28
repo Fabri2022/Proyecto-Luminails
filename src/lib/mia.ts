@@ -143,19 +143,37 @@ export async function responderMia(historial: Mensaje[]): Promise<string> {
 
   const contents: Contenido[] = historial.map((m) => ({ role: m.rol === "user" ? "user" : "model", parts: [{ text: m.texto }] }));
 
+  const respaldo = process.env.GEMINI_FALLBACK_MODEL ?? "gemini-flash-latest";
+  const intentos = [modelo, modelo, respaldo]; // si el modelo está saturado o tarda, reintenta y por último usa el de respaldo
+
+  async function pedir(cuerpo: Record<string, unknown>): Promise<Response> {
+    let ultimo = "";
+    for (const m of intentos) {
+      const conPensamiento = m !== respaldo; // el modelo de respaldo va con su configuración por defecto
+      const generationConfig = { maxOutputTokens: 800, ...(conPensamiento ? { thinkingConfig: { thinkingLevel: "low" } } : {}) };
+      try {
+        const r = await fetch(`${base}/v1beta/models/${m}:generateContent`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json", "x-goog-api-key": clave! },
+          body: JSON.stringify({ ...cuerpo, generationConfig }),
+          signal: AbortSignal.timeout(15000),
+        });
+        if (r.ok) return r;
+        ultimo = `Gemini ${r.status}: ${(await r.text()).slice(0, 200)}`;
+        if (![400, 404, 429, 500, 503].includes(r.status)) break; // otro error: reintentar no sirve
+      } catch (e) {
+        ultimo = e instanceof Error ? e.message : String(e); // tiempo agotado o red
+      }
+    }
+    throw new Error(ultimo || "Gemini sin respuesta");
+  }
+
   for (let vuelta = 0; vuelta < 5; vuelta++) {
-    const r = await fetch(`${base}/v1beta/models/${modelo}:generateContent`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json", "x-goog-api-key": clave },
-      body: JSON.stringify({
-        systemInstruction: { parts: [{ text: sistema() }] },
-        contents,
-        tools: [{ functionDeclarations: DECLARACIONES }],
-        generationConfig: { maxOutputTokens: 800 },
-      }),
-      signal: AbortSignal.timeout(20000),
+    const r = await pedir({
+      systemInstruction: { parts: [{ text: sistema() }] },
+      contents,
+      tools: [{ functionDeclarations: DECLARACIONES }],
     });
-    if (!r.ok) throw new Error(`Gemini ${r.status}: ${(await r.text()).slice(0, 200)}`);
     const j = await r.json();
     const cand = j.candidates?.[0]?.content as Contenido | undefined;
     if (!cand?.parts?.length) throw new Error("Gemini sin respuesta");

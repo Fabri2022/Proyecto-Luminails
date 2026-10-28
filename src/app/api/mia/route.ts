@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { MENSAJE_FALLA, responderMia, type Mensaje } from "@/lib/mia";
 
+export const maxDuration = 60; // segundos: deja tiempo a Gemini y a un reintento
+
 // Límite simple por IP (en memoria; alcanza para frenar abusos básicos en la demo).
 const ventanas = new Map<string, number[]>();
 const MAX = 20, VENTANA_MS = 10 * 60 * 1000;
