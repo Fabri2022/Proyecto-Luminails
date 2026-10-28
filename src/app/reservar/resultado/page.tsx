@@ -5,6 +5,7 @@ import { supabaseServidor } from "@/lib/supabase-servidor";
 import { confirmarPago, esUuid } from "@/lib/mercadopago";
 import { formatearPrecio } from "@/data/servicios";
 import { Gracias } from "./Gracias";
+import { AvisoAsistencia } from "@/components/AvisoAsistencia";
 
 export const metadata = { title: "Tu turno · LumiNails Studio" };
 
@@ -61,6 +62,8 @@ async function Contenido({ searchParams }: { searchParams: Params }) {
             <p className="capitalize">{dia} · {hora} hs</p>
             <p className="mt-3 flex justify-between font-bold"><span>Seña abonada</span><span>{formatearPrecio(turno.sena_monto)}</span></p>
           </div>
+          <div className="mt-4"><AvisoAsistencia /></div>
+          <p className="mt-3 text-sm">¿Necesitás cancelar? <Link href="/arrepentimiento" className="font-semibold underline">Hacelo acá</Link> o escribile a Agustina por WhatsApp.</p>
           <Gracias />
         </>
       ) : enProceso ? (

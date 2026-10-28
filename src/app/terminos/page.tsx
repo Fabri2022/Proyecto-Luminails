@@ -1,4 +1,5 @@
-import { Legal, CONTACTO_IG, CONTACTO_TXT } from "@/components/Legal";
+import Link from "next/link";
+import { Legal, CONTACTO_IG, CONTACTO_TXT, WHATSAPP_TXT, urlWhatsApp } from "@/components/Legal";
 
 export const metadata = { title: "Términos y condiciones · LumiNails Studio" };
 
@@ -23,7 +24,20 @@ export default function Terminos() {
 
       <section>
         <h2>Cancelaciones y devolución de la seña</h2>
-        <p>Las condiciones para cancelar, reprogramar o recuperar la seña las define el estudio. Consultalas por Instagram, en <a href={CONTACTO_IG} target="_blank" rel="noopener noreferrer">{CONTACTO_TXT}</a>, antes de reservar.</p>
+        <ul>
+          <li><strong>Cancelás con 24 horas o más de anticipación:</strong> te devolvemos la seña completa o la pasamos a otro turno sin costo, como prefieras.</li>
+          <li><strong>Cancelás con menos de 24 horas:</strong> la seña no se devuelve, pero queda como crédito para reprogramar una sola vez.</li>
+          <li><strong>No asistís sin avisar:</strong> se pierde la seña. Hay una tolerancia de 15 minutos; pasado ese tiempo, el turno se da por perdido y también la seña. Si tuviste un inconveniente importante y avisás, lo evaluamos.</li>
+          <li><strong>Si cancela el estudio:</strong> te devolvemos la seña completa o reprogramamos, como elijas.</li>
+          <li><strong>Pago duplicado o con error:</strong> se devuelve la seña completa.</li>
+          <li><strong>Cómo se devuelve:</strong> por Mercado Pago, al mismo medio con el que pagaste, dentro de las 12 horas de recibido y aceptado tu pedido.</li>
+          <li><strong>Cómo pedirlo:</strong> por WhatsApp al <a href={urlWhatsApp("Hola Agustina, quiero cancelar mi turno.")} target="_blank" rel="noopener noreferrer">{WHATSAPP_TXT}</a>, desde el <Link href="/arrepentimiento">formulario de arrepentimiento y cancelación</Link> o por Instagram en <a href={CONTACTO_IG} target="_blank" rel="noopener noreferrer">{CONTACTO_TXT}</a>. Indicá tu nombre y la fecha del turno.</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>Botón de arrepentimiento</h2>
+        <p>Si contrataste por esta aplicación y querés arrepentirte, podés pedirlo en cualquier momento desde el enlace <Link href="/arrepentimiento">Botón de arrepentimiento</Link> del pie de la página, sin registrarte. Al enviarlo recibís un código de identificación y te contestamos por WhatsApp. Esto se aplica según la Ley 24.240 de Defensa del Consumidor y la Resolución 424/2020.</p>
       </section>
 
       <section>

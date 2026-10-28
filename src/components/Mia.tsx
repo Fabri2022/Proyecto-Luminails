@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { AvisoAsistencia } from "@/components/AvisoAsistencia";
 import { useEffect, useRef, useState } from "react";
 
 type Opcion = { servicio: string; servicioNombre: string; fecha: string; hora: number; etiqueta: string };
@@ -135,6 +136,7 @@ export function Mia() {
                 <label className="mt-2 block text-sm font-semibold">Teléfono (WhatsApp)
                   <input value={telefono} onChange={(e) => setTelefono(e.target.value)} inputMode="tel" autoComplete="tel" className="mt-1 block min-h-11 w-full rounded-xl bg-white px-3 text-base ring-1 ring-cacao/25" />
                 </label>
+                <div className="mt-3"><AvisoAsistencia compacto /></div>
                 <label className="mt-3 flex items-start gap-2 text-xs">
                   <input type="checkbox" checked={acepta} onChange={(e) => setAcepta(e.target.checked)} className="mt-0.5 size-5 shrink-0 accent-[#4a2e35]" />
                   <span>Acepto los <Link href="/terminos" target="_blank" className="font-semibold underline">términos</Link> y la <Link href="/privacidad" target="_blank" className="font-semibold underline">política de privacidad</Link>.</span>

@@ -4,6 +4,9 @@ import type { ReactNode } from "react";
 
 export const CONTACTO_IG = "https://www.instagram.com/luminails._studio";
 export const CONTACTO_TXT = "@luminails._studio";
+export const WHATSAPP_NUM = "5493804867622";
+export const WHATSAPP_TXT = "+54 9 3804 86-7622";
+export const urlWhatsApp = (texto: string) => `https://wa.me/${WHATSAPP_NUM}?text=${encodeURIComponent(texto)}`;
 
 export function Legal({ titulo, actualizado, children }: { titulo: string; actualizado: string; children: ReactNode }) {
   return (

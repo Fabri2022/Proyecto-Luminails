@@ -10,6 +10,7 @@ import { TESTIMONIOS } from "@/data/testimonios";
 import { ADICIONALES } from "@/data/servicios";
 import { CarruselServicios, type TarjetaCarrusel } from "@/components/CarruselServicios";
 import { CarruselOpiniones } from "@/components/CarruselOpiniones";
+import { WHATSAPP_TXT, urlWhatsApp } from "@/components/Legal";
 
 function Destello({ className = "" }: { className?: string }) {
   return (
@@ -298,6 +299,18 @@ function Pie() {
           </span>
           Seguinos
         </a>
+        <a
+          href={urlWhatsApp("Hola Agustina, te escribo desde la app de LumiNails Studio.")}
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label={`Escribile a Agustina por WhatsApp: ${WHATSAPP_TXT}`}
+          className="mx-auto mt-3 inline-flex min-h-12 items-center gap-3 rounded-full border border-blush/40 px-5 font-semibold hover:bg-blush/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blush"
+        >
+          WhatsApp · {WHATSAPP_TXT}
+        </a>
+        <p className="mt-4">
+          <a href="/arrepentimiento" className="inline-flex min-h-12 items-center rounded-full bg-blush px-5 font-bold text-cacao">Botón de arrepentimiento · Cancelar turno</a>
+        </p>
         <p className="mt-4 flex justify-center gap-4">
           <a href="/privacidad" className="underline underline-offset-4">Privacidad</a>
           <a href="/terminos" className="underline underline-offset-4">Términos y condiciones</a>
