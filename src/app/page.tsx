@@ -187,6 +187,7 @@ function Testimonios() {
       <div className="mx-auto max-w-5xl px-5">
         <h2 className="font-serif text-3xl font-semibold sm:text-4xl">Lo que dicen nuestras clientas</h2>
         <CarruselOpiniones opiniones={TESTIMONIOS} />
+        <p className="mt-2"><a href="/opinion" className="inline-flex min-h-12 items-center rounded-full bg-cacao px-6 font-bold text-blush">★ Dejá tu opinión</a></p>
         {hayEjemplos && (
           <p className="mt-4 text-sm">Opiniones de ejemplo: se reemplazan por opiniones reales de clientas.</p>
         )}
@@ -310,6 +311,9 @@ function Pie() {
         </a>
         <p className="mt-4">
           <a href="/arrepentimiento" className="inline-flex min-h-12 items-center rounded-full bg-blush px-5 font-bold text-cacao">Botón de arrepentimiento · Cancelar turno</a>
+        </p>
+        <p className="mt-4">
+          <a href="/opinion" className="inline-flex min-h-12 items-center rounded-full border border-blush/40 px-5 font-semibold hover:bg-blush/10">★ Dejá tu opinión</a>
         </p>
         <p className="mt-4 flex justify-center gap-4">
           <a href="/privacidad" className="underline underline-offset-4">Privacidad</a>

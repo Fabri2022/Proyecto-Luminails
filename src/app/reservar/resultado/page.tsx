@@ -64,6 +64,7 @@ async function Contenido({ searchParams }: { searchParams: Params }) {
           </div>
           <div className="mt-4"><AvisoAsistencia /></div>
           <p className="mt-3 text-sm">¿Necesitás cancelar? <Link href="/arrepentimiento" className="font-semibold underline">Hacelo acá</Link> o escribile a Agustina por WhatsApp.</p>
+          <p className="mt-2 text-sm">Cuando tengas tus uñas, <Link href="/opinion" className="font-semibold underline">dejanos tu opinión ★</Link></p>
           <Gracias />
         </>
       ) : enProceso ? (
