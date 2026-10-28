@@ -24,16 +24,15 @@ export function CarruselServicios({ tarjetas }: { tarjetas: TarjetaCarrusel[] })
   const vp = useRef<HTMLDivElement>(null);
   const track = useRef<HTMLUListElement>(null);
   const reducir = useSyncExternalStore(suscribir, () => window.matchMedia(CONSULTA).matches, () => false);
-  const andando = !reducir;
-  const movRef = useRef({ playing: true, mover: (() => {}) as (d: number) => void });
-  useEffect(() => { movRef.current.playing = andando; }, [andando]);
+    const movRef = useRef({ lento: false, mover: (() => {}) as (d: number) => void });
+  useEffect(() => { movRef.current.lento = reducir; }, [reducir]);
   const n = tarjetas.length;
 
   useEffect(() => {
     const vpe = vp.current!, tr = track.current!;
     const cards = Array.from(tr.children) as HTMLElement[];
-    const VEL = 45;
-    let offset = 0, v = 0, dragging = false, hover = false, visible = true, hold = 0;
+    const VEL = 55; // px por segundo
+    let offset = 0, v = 0, dragging = false, visible = true;
     let tween: { from: number; to: number; t0: number; dur: number } | null = null;
     let lastX = 0, lastT = 0, last = performance.now(), raf = 0;
     const x = (i: number) => cards[i].getBoundingClientRect().left;
@@ -54,7 +53,7 @@ export function CarruselServicios({ tarjetas }: { tarjetas: TarjetaCarrusel[] })
           if (p >= 1) tween = null;
         } else {
           if (Math.abs(v) > 2) { offset += v * dt; v *= Math.pow(0.04, dt); } else v = 0;
-          if (movRef.current.playing && !hover && visible && t > hold && !document.hidden) offset += VEL * dt;
+          if (visible && !document.hidden) offset += (movRef.current.lento ? VEL * 0.55 : VEL) * dt; // gira siempre, sin frenarse al scrollear, pasar el mouse ni soltar
         }
       }
       envolver();
@@ -63,7 +62,7 @@ export function CarruselServicios({ tarjetas }: { tarjetas: TarjetaCarrusel[] })
       tr.style.transform = `translate3d(${Math.round(-(w() + offset) * dpr) / dpr}px,0,0)`;
       raf = requestAnimationFrame(tick);
     };
-    movRef.current.mover = (d: number) => { v = 0; tween = { from: offset, to: offset + d * paso(), t0: performance.now(), dur: 450 }; hold = performance.now() + 2500; };
+    movRef.current.mover = (d: number) => { v = 0; tween = { from: offset, to: offset + d * paso(), t0: performance.now(), dur: 450 }; };
     const down = (e: PointerEvent) => {
       if (e.pointerType === "mouse" && e.button !== 0) return;
       dragging = true; tween = null; v = 0; lastX = e.clientX; lastT = performance.now();
@@ -77,27 +76,23 @@ export function CarruselServicios({ tarjetas }: { tarjetas: TarjetaCarrusel[] })
     };
     const soltar = () => {
       if (!dragging) return; dragging = false; vpe.classList.remove("arrastrando");
-      v = Math.max(-2500, Math.min(2500, v)); hold = performance.now() + 1500;
+      v = Math.max(-2500, Math.min(2500, v));
     };
     const key = (e: KeyboardEvent) => {
       if (e.key === "ArrowRight") { movRef.current.mover(1); e.preventDefault(); }
       else if (e.key === "ArrowLeft") { movRef.current.mover(-1); e.preventDefault(); }
     };
-    const enter = () => { hover = true; }, leave = () => { hover = false; };
-    const focusin = () => { hold = performance.now() + 3000; };
     const io = new IntersectionObserver((en) => { visible = en[0].isIntersecting; }, { threshold: 0.1 });
     io.observe(vpe);
     vpe.addEventListener("pointerdown", down); vpe.addEventListener("pointermove", move);
     vpe.addEventListener("pointerup", soltar); vpe.addEventListener("pointercancel", soltar);
-    vpe.addEventListener("keydown", key); vpe.addEventListener("mouseenter", enter);
-    vpe.addEventListener("mouseleave", leave); vpe.addEventListener("focusin", focusin);
+    vpe.addEventListener("keydown", key);
     raf = requestAnimationFrame(tick);
     return () => {
       cancelAnimationFrame(raf); io.disconnect();
       vpe.removeEventListener("pointerdown", down); vpe.removeEventListener("pointermove", move);
       vpe.removeEventListener("pointerup", soltar); vpe.removeEventListener("pointercancel", soltar);
-      vpe.removeEventListener("keydown", key); vpe.removeEventListener("mouseenter", enter);
-      vpe.removeEventListener("mouseleave", leave); vpe.removeEventListener("focusin", focusin);
+      vpe.removeEventListener("keydown", key);
     };
   }, [n]);
 
