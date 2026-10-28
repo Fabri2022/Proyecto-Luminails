@@ -9,6 +9,7 @@ import {
 import { TESTIMONIOS } from "@/data/testimonios";
 import { ADICIONALES } from "@/data/servicios";
 import { CarruselServicios, type TarjetaCarrusel } from "@/components/CarruselServicios";
+import { CarruselOpiniones } from "@/components/CarruselOpiniones";
 
 function Destello({ className = "" }: { className?: string }) {
   return (
@@ -184,21 +185,7 @@ function Testimonios() {
     <section className="bg-white/60 py-14">
       <div className="mx-auto max-w-5xl px-5">
         <h2 className="font-serif text-3xl font-semibold sm:text-4xl">Lo que dicen nuestras clientas</h2>
-        <ul className="mt-8 grid gap-4 md:grid-cols-3">
-          {TESTIMONIOS.map((t) => (
-            <li key={t.nombre} className="card-suave p-6">
-              {t.ejemplo && (
-                <span className="mb-3 inline-block rounded-full bg-rosa-suave px-3 py-1 text-xs font-bold uppercase tracking-wider">
-                  Ejemplo
-                </span>
-              )}
-              <p className="leading-relaxed">“{t.texto}”</p>
-              <p className="mt-4 text-sm font-bold">
-                {t.nombre} <span className="font-medium">· {t.servicio}</span>
-              </p>
-            </li>
-          ))}
-        </ul>
+        <CarruselOpiniones opiniones={TESTIMONIOS} />
         {hayEjemplos && (
           <p className="mt-4 text-sm">Opiniones de ejemplo: se reemplazan por opiniones reales de clientas.</p>
         )}
