@@ -37,4 +37,10 @@ export const TESTIMONIOS: Testimonio[] = [
     texto: "Me encantaron las uñitas, ¡quedaron hermosas! Me encantó todo. Quedé enamorada.",
     ejemplo: false,
   },
+  {
+    nombre: "Paula R.",
+    estrellas: 5,
+    texto: "Me encantaron las uñas, fue el mejor servicio que he probado. ¡100% recomendada!",
+    ejemplo: false,
+  },
 ];
