@@ -31,4 +31,10 @@ export const TESTIMONIOS: Testimonio[] = [
     texto: "Me encantó el servicio y me sentí súper cómoda con todo. En lo personal le daría 5 estrellas, súper recomendado.",
     ejemplo: false,
   },
+  {
+    nombre: "Xiomara F.",
+    estrellas: 5,
+    texto: "Me encantaron las uñitas, ¡quedaron hermosas! Me encantó todo. Quedé enamorada.",
+    ejemplo: false,
+  },
 ];
