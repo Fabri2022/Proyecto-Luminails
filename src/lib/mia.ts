@@ -139,18 +139,17 @@ export async function responderMia(historial: Mensaje[]): Promise<string> {
   const clave = process.env.GEMINI_API_KEY;
   if (!clave) throw new Error("Falta GEMINI_API_KEY");
   const base = process.env.GEMINI_BASE_URL ?? "https://generativelanguage.googleapis.com";
-  const modelo = process.env.GEMINI_MODEL ?? "gemini-3.8-flash";
+  const modelo = process.env.GEMINI_MODEL ?? "gemini-flash-lite-latest";
 
   const contents: Contenido[] = historial.map((m) => ({ role: m.rol === "user" ? "user" : "model", parts: [{ text: m.texto }] }));
 
-  const respaldo = process.env.GEMINI_FALLBACK_MODEL ?? "gemini-flash-latest";
+  const respaldo = process.env.GEMINI_FALLBACK_MODEL ?? "gemini-3.8-flash";
   const intentos = [modelo, modelo, respaldo]; // si el modelo está saturado o tarda, reintenta y por último usa el de respaldo
 
   async function pedir(cuerpo: Record<string, unknown>): Promise<Response> {
     let ultimo = "";
     for (const m of intentos) {
-      const conPensamiento = m !== respaldo; // el modelo de respaldo va con su configuración por defecto
-      const generationConfig = { maxOutputTokens: 800, ...(conPensamiento ? { thinkingConfig: { thinkingLevel: "low" } } : {}) };
+      const generationConfig = { maxOutputTokens: 800 };
       try {
         const r = await fetch(`${base}/v1beta/models/${m}:generateContent`, {
           method: "POST",
