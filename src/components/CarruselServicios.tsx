@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useRef, useState, useSyncExternalStore } from "react";
+import { useEffect, useRef, useSyncExternalStore } from "react";
 
 export type TarjetaCarrusel = {
   id: string;
@@ -23,9 +23,8 @@ function suscribir(cb: () => void) {
 export function CarruselServicios({ tarjetas }: { tarjetas: TarjetaCarrusel[] }) {
   const vp = useRef<HTMLDivElement>(null);
   const track = useRef<HTMLUListElement>(null);
-  const [pausada, setPausada] = useState(false);
   const reducir = useSyncExternalStore(suscribir, () => window.matchMedia(CONSULTA).matches, () => false);
-  const andando = !pausada && !reducir;
+  const andando = !reducir;
   const movRef = useRef({ playing: true, mover: (() => {}) as (d: number) => void });
   useEffect(() => { movRef.current.playing = andando; }, [andando]);
   const n = tarjetas.length;
@@ -37,8 +36,9 @@ export function CarruselServicios({ tarjetas }: { tarjetas: TarjetaCarrusel[] })
     let offset = 0, v = 0, dragging = false, hover = false, visible = true, hold = 0;
     let tween: { from: number; to: number; t0: number; dur: number } | null = null;
     let lastX = 0, lastT = 0, last = performance.now(), raf = 0;
-    const w = () => cards[n].offsetLeft - cards[0].offsetLeft;
-    const paso = () => cards[1].offsetLeft - cards[0].offsetLeft;
+    const x = (i: number) => cards[i].getBoundingClientRect().left;
+    const w = () => x(n) - x(0);
+    const paso = () => x(1) - x(0);
     const ease = (x: number) => 1 - Math.pow(1 - x, 3);
     const envolver = () => {
       const W = w(); if (W <= 0) return;
@@ -58,7 +58,9 @@ export function CarruselServicios({ tarjetas }: { tarjetas: TarjetaCarrusel[] })
         }
       }
       envolver();
-      tr.style.transform = `translate3d(${-(w() + offset)}px,0,0)`;
+      // Se ajusta a píxeles reales de la pantalla para que las fotos no tiemblen.
+      const dpr = window.devicePixelRatio || 1;
+      tr.style.transform = `translate3d(${Math.round(-(w() + offset) * dpr) / dpr}px,0,0)`;
       raf = requestAnimationFrame(tick);
     };
     movRef.current.mover = (d: number) => { v = 0; tween = { from: offset, to: offset + d * paso(), t0: performance.now(), dur: 450 }; hold = performance.now() + 2500; };
@@ -75,7 +77,7 @@ export function CarruselServicios({ tarjetas }: { tarjetas: TarjetaCarrusel[] })
     };
     const soltar = () => {
       if (!dragging) return; dragging = false; vpe.classList.remove("arrastrando");
-      v = Math.max(-2500, Math.min(2500, v)); hold = performance.now() + 2000;
+      v = Math.max(-2500, Math.min(2500, v)); hold = performance.now() + 1500;
     };
     const key = (e: KeyboardEvent) => {
       if (e.key === "ArrowRight") { movRef.current.mover(1); e.preventDefault(); }
@@ -99,27 +101,12 @@ export function CarruselServicios({ tarjetas }: { tarjetas: TarjetaCarrusel[] })
     };
   }, [n]);
 
-  const alternar = () => setPausada((p) => !p);
-  const copias = [0, 1, 2];
+    const copias = [0, 1, 2];
 
   return (
     <div role="region" aria-roledescription="carrusel" aria-label="Servicios de LumiNails Studio">
-      <div className="mt-4 flex flex-wrap items-center justify-end gap-2">
-        <button type="button" onClick={alternar} aria-pressed={!andando}
-          className="min-h-11 rounded-full border-[1.5px] border-cacao/20 px-4 text-sm font-semibold hover:bg-rosa-suave">
-          {andando ? "Pausar movimiento" : "Reanudar movimiento"}
-        </button>
-        <button type="button" aria-label="Ver tarjetas anteriores" onClick={() => movRef.current.mover(-1)}
-          className="grid size-11 place-items-center rounded-full border-[1.5px] border-cacao/20 bg-white hover:bg-rosa-suave">
-          <svg viewBox="0 0 24 24" aria-hidden="true" className="size-5 fill-none stroke-current stroke-[2.2]" strokeLinecap="round" strokeLinejoin="round"><path d="M15 5l-7 7 7 7" /></svg>
-        </button>
-        <button type="button" aria-label="Ver más tarjetas" onClick={() => movRef.current.mover(1)}
-          className="grid size-11 place-items-center rounded-full border-[1.5px] border-cacao/20 bg-white hover:bg-rosa-suave">
-          <svg viewBox="0 0 24 24" aria-hidden="true" className="size-5 fill-none stroke-current stroke-[2.2]" strokeLinecap="round" strokeLinejoin="round"><path d="M9 5l7 7-7 7" /></svg>
-        </button>
-      </div>
       <div ref={vp} tabIndex={0} aria-label="Servicios. Arrastrá hacia los costados o usá las flechas del teclado."
-        className="carrusel-vp mt-4 cursor-grab select-none overflow-hidden pt-1.5 pb-6 [touch-action:pan-y] [&.arrastrando]:cursor-grabbing">
+        className="carrusel-vp mt-6 cursor-grab select-none overflow-hidden pt-1.5 pb-6 [touch-action:pan-y] [&.arrastrando]:cursor-grabbing">
         <ul ref={track} className="flex gap-4 will-change-transform md:gap-5">
           {copias.flatMap((c) => tarjetas.map((t, i) => (
             <li key={`${c}-${t.id}`} {...(c === 0 ? { role: "group", "aria-roledescription": "tarjeta", "aria-label": `${i + 1} de ${n}` } : { "aria-hidden": true })}
