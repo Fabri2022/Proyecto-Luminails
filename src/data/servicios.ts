@@ -57,9 +57,9 @@ export function formatearDuracion(min: number): string {
 }
 
 // Adicionales: se suman a un servicio (no se reservan solos).
-export type Adicional = { id: string; nombre: string; precio: number; foto: string };
+export type Adicional = { id: string; nombre: string; precio: number; foto: string; fotoAlt: string; descripcion: string };
 
 export const ADICIONALES: Adicional[] = [
-  { id: "nail-art", nombre: "Nail Art", precio: 2000, foto: "/trabajos/nail-art-1.jpg" },
-  { id: "pedreria", nombre: "Pedrería", precio: 1000, foto: "/trabajos/pedreria-2.jpg" },
+  { id: "nail-art", nombre: "Nail Art", precio: 2000, foto: "/trabajos/nail-art-1.jpg", fotoAlt: "Uñas con diseños pintados a mano en tonos verdes y celestes", descripcion: "Diseños pintados a mano para personalizar tu servicio." },
+  { id: "pedreria", nombre: "Pedrería", precio: 1000, foto: "/trabajos/pedreria-1.jpg", fotoAlt: "Uñas largas con flores y piedras en tonos rosa", descripcion: "Piedritas que suman brillo, en un detalle o en toda la mano." },
 ];

@@ -7,8 +7,8 @@ import {
   formatearPrecio,
 } from "@/data/servicios";
 import { TESTIMONIOS } from "@/data/testimonios";
-import { TRABAJOS } from "@/data/trabajos";
 import { ADICIONALES } from "@/data/servicios";
+import { CarruselServicios, type TarjetaCarrusel } from "@/components/CarruselServicios";
 
 function Destello({ className = "" }: { className?: string }) {
   return (
@@ -102,70 +102,25 @@ function Beneficios() {
   );
 }
 
+const TARJETAS: TarjetaCarrusel[] = [
+  ...SERVICIOS.map((s) => ({
+    id: s.id, nombre: s.nombre, descripcion: s.descripcion, foto: s.foto, fotoAlt: s.fotoAlt,
+    precio: formatearPrecio(s.precio), detalle: formatearDuracion(s.duracionMin),
+  })),
+  ...ADICIONALES.map((a) => ({
+    id: a.id, nombre: a.nombre, descripcion: a.descripcion, foto: a.foto, fotoAlt: a.fotoAlt,
+    precio: "+" + formatearPrecio(a.precio), detalle: "Adicional",
+  })),
+];
+
 function Servicios() {
   return (
     <section id="servicios" className="mx-auto max-w-5xl px-5 py-14">
       <h2 className="font-serif text-3xl font-semibold sm:text-4xl">Nuestros servicios</h2>
-      <ul className="mt-8 grid gap-4 md:grid-cols-3">
-        {SERVICIOS.map((s) => (
-          <li key={s.id} className="card-suave overflow-hidden">
-            <div className="relative aspect-[4/5] w-full overflow-hidden">
-              <Image
-                src={s.foto}
-                alt={s.fotoAlt}
-                fill
-                sizes="(min-width: 768px) 33vw, 100vw"
-                className="object-cover"
-              />
-            </div>
-            <div className="p-6">
-              <h3 className="text-xl font-bold">{s.nombre}</h3>
-              <p className="mt-1 leading-relaxed">{s.descripcion}</p>
-              <p className="mt-4 flex items-baseline justify-between">
-                <span className="font-serif text-3xl font-semibold">{formatearPrecio(s.precio)}</span>
-                <span className="text-sm font-medium">{formatearDuracion(s.duracionMin)}</span>
-              </p>
-            </div>
-          </li>
-        ))}
-      </ul>
-      <p className="mt-6 rounded-2xl bg-rosa-suave px-5 py-4 text-center font-medium">
+      <CarruselServicios tarjetas={TARJETAS} />
+      <p className="mt-2 rounded-2xl bg-rosa-suave px-5 py-4 text-center font-medium">
         Seña para confirmar tu turno: <strong>{formatearPrecio(SENA)}</strong> (se paga con Mercado Pago).
       </p>
-    </section>
-  );
-}
-
-function precioDe(id: string) {
-  return SERVICIOS.find((s) => s.id === id)?.precio ?? ADICIONALES.find((a) => a.id === id)?.precio ?? 0;
-}
-
-function Trabajos() {
-  return (
-    <section id="trabajos" className="bg-white/60 py-14">
-      <div className="mx-auto max-w-5xl px-5">
-        <h2 className="font-serif text-3xl font-semibold sm:text-4xl">Nuestros trabajos</h2>
-        <p className="mt-3 max-w-xl leading-relaxed">Fotos reales de uñas hechas en LumiNails Studio.</p>
-        <div className="mt-8 space-y-10">
-          {TRABAJOS.map((g) => (
-            <div key={g.id}>
-              <h3 className="flex items-baseline justify-between gap-3 border-b border-cacao/15 pb-2">
-                <span className="text-xl font-bold">{g.titulo}</span>
-                <span className="text-sm font-semibold">
-                  {g.adicional ? "Adicional · +" : ""}{formatearPrecio(precioDe(g.id))}
-                </span>
-              </h3>
-              <ul className="mt-4 grid grid-cols-3 gap-2 sm:gap-4">
-                {g.fotos.map((f) => (
-                  <li key={f.src} className="card-suave relative aspect-[3/4] overflow-hidden">
-                    <Image src={f.src} alt={f.alt} fill sizes="(min-width: 1024px) 320px, 33vw" className="object-cover" />
-                  </li>
-                ))}
-              </ul>
-            </div>
-          ))}
-        </div>
-      </div>
     </section>
   );
 }
@@ -370,7 +325,6 @@ export default function Home() {
         <Hero />
         <Beneficios />
         <Servicios />
-        <Trabajos />
         <ComoFunciona />
         <Mia />
         <Testimonios />
