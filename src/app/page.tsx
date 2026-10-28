@@ -216,6 +216,37 @@ function Testimonios() {
   );
 }
 
+// Solo nombre y rol: no se publican DNI, teléfonos ni redes personales de los integrantes.
+const EQUIPO = [
+  { nombre: "Génesis Tiziana Marín", rol: "Estudiante · Desarrollo" },
+  { nombre: "Agustina Guadalupe Monrroy Carvajal", rol: "Estudiante · Dueña de LumiNails Studio" },
+  { nombre: "Víctor Santiago Palacios", rol: "Estudiante · Desarrollo" },
+  { nombre: "Fabricio Paez Manrique", rol: "Tutor del proyecto" },
+];
+
+function Equipo() {
+  return (
+    <section id="equipo" className="bg-white/60 py-14">
+      <div className="mx-auto max-w-5xl px-5">
+        <h2 className="font-serif text-3xl font-semibold sm:text-4xl">Quiénes lo hicimos</h2>
+        <p className="mt-3 max-w-xl leading-relaxed">
+          LumiNails Studio es un proyecto creado por estudiantes de 5° año para el concurso de innovación
+          tecnológica de La Rioja, a partir de un emprendimiento de uñas real.
+        </p>
+        <ul className="mt-8 grid gap-4 sm:grid-cols-2">
+          {EQUIPO.map((p) => (
+            <li key={p.nombre} className="card-suave p-6">
+              <Destello className="h-5 w-5 text-oro" />
+              <p className="mt-3 text-lg font-bold">{p.nombre}</p>
+              <p className="mt-1 text-sm font-medium">{p.rol}</p>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </section>
+  );
+}
+
 function Proximamente() {
   return (
     <section className="mx-auto max-w-5xl px-5 py-14">
@@ -256,7 +287,17 @@ function Pie() {
           height={86}
           className="mx-auto h-10 w-auto"
         />
-        <p className="mt-4">La Rioja, Argentina · © 2026 LumiNails Studio</p>
+        <p className="mt-4">
+          <a
+            href="https://www.instagram.com/luminails._studio"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="font-semibold underline underline-offset-4"
+          >
+            Seguinos en Instagram @luminails._studio
+          </a>
+        </p>
+        <p className="mt-2">La Rioja, Argentina · © 2026 LumiNails Studio</p>
       </div>
     </footer>
   );
@@ -274,6 +315,7 @@ export default function Home() {
         <Mia />
         <Testimonios />
         <Proximamente />
+        <Equipo />
         <CtaFinal />
       </main>
       <Pie />

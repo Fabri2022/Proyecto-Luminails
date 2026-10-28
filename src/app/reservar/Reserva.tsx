@@ -32,6 +32,8 @@ export default function Reserva() {
   const [errorReserva, setErrorReserva] = useState("");
   const [reserva, setReserva] = useState<{ turnoId: string; expiraEn: string } | null>(null);
   const [restante, setRestante] = useState(0);
+  const [pagando, setPagando] = useState(false);
+  const [errorPago, setErrorPago] = useState("");
 
   const servicio = SERVICIOS.find((s) => s.id === servicioId)!;
   const total = servicio.precio + ADICIONALES.filter((a) => extras.includes(a.id)).reduce((t, a) => t + a.precio, 0);
@@ -70,7 +72,22 @@ export default function Reserva() {
     setEnviando(false);
   }
 
-  const primerDow = (new Date(Date.UTC(mes.y, mes.m, 1)).getUTCDay() + 6) % 7; // lunes = 0
+  async function pagar() {
+    if (!reserva) return;
+    setPagando(true); setErrorPago("");
+    try {
+      const r = await fetch("/api/pagar", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ turnoId: reserva.turnoId }),
+      });
+      const j = await r.json();
+      if (r.ok && j.url) { window.location.href = j.url; return; } // se va a Mercado Pago
+      setErrorPago((j.error ?? "No pudimos iniciar el pago.") + (j.codigo ? ` (${j.codigo})` : ""));
+    } catch { setErrorPago("Sin conexión. Probá de nuevo."); }
+    setPagando(false);
+  }
+
+  const primerDow =(new Date(Date.UTC(mes.y, mes.m, 1)).getUTCDay() + 6) % 7; // lunes = 0
   const cantDias = new Date(Date.UTC(mes.y, mes.m + 1, 0)).getUTCDate();
   const esMesActual = mes.y === hoy.y && mes.m === hoy.m;
   const mesesAdelante = (mes.y - hoy.y) * 12 + (mes.m - hoy.m);
@@ -99,8 +116,11 @@ export default function Reserva() {
           <p className="mt-3 flex justify-between"><span>Total</span><span>{formatearPrecio(total)}</span></p>
           <p className="flex justify-between font-bold"><span>Seña a pagar ahora</span><span>{formatearPrecio(SENA)}</span></p>
         </div>
-        <button className="btn-cta mt-6 w-full" disabled>Pagar seña con Mercado Pago (próximo paso)</button>
-        {restante === 0 && <p className="mt-4 font-semibold" role="alert">El tiempo terminó. <Link className="underline" href="/reservar">Elegí un horario de nuevo</Link>.</p>}
+        {errorPago && <p className="mt-4 font-semibold" role="alert">{errorPago}</p>}
+        <button className="btn-cta mt-6 w-full disabled:opacity-50" disabled={restante === 0 || pagando} onClick={pagar}>
+          {pagando ? "Abriendo Mercado Pago…" : `Pagar seña de ${formatearPrecio(SENA)} con Mercado Pago`}
+        </button>
+        {restante === 0 &&<p className="mt-4 font-semibold" role="alert">El tiempo terminó. <Link className="underline" href="/reservar">Elegí un horario de nuevo</Link>.</p>}
       </main>
     );
   }
