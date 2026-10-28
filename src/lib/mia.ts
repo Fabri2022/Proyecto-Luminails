@@ -139,7 +139,7 @@ export async function responderMia(historial: Mensaje[]): Promise<string> {
   const clave = process.env.GEMINI_API_KEY;
   if (!clave) throw new Error("Falta GEMINI_API_KEY");
   const base = process.env.GEMINI_BASE_URL ?? "https://generativelanguage.googleapis.com";
-  const modelo = process.env.GEMINI_MODEL ?? "gemini-2.5-flash";
+  const modelo = process.env.GEMINI_MODEL ?? "gemini-3.8-flash";
 
   const contents: Contenido[] = historial.map((m) => ({ role: m.rol === "user" ? "user" : "model", parts: [{ text: m.texto }] }));
 
@@ -151,7 +151,7 @@ export async function responderMia(historial: Mensaje[]): Promise<string> {
         systemInstruction: { parts: [{ text: sistema() }] },
         contents,
         tools: [{ functionDeclarations: DECLARACIONES }],
-        generationConfig: { temperature: 0.3, maxOutputTokens: 600 },
+        generationConfig: { maxOutputTokens: 800 },
       }),
       signal: AbortSignal.timeout(20000),
     });
