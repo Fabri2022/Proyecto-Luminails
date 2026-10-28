@@ -11,6 +11,10 @@ const norm = (s: string) => s.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,
 
 export type Mensaje = { rol: "user" | "mia"; texto: string };
 
+// Un horario libre real que la pantalla muestra como botón (la clienta lo toca y sigue a pagar la seña).
+export type Opcion = { servicio: string; servicioNombre: string; fecha: string; hora: number; etiqueta: string };
+const MAX_OPCIONES = 8;
+
 export const MENSAJE_FALLA =
   "Perdoná, estoy teniendo problemas técnicos y no puedo consultar la agenda en este momento. Probá de nuevo en unos minutos o mirá los horarios directo en el calendario de la pantalla.";
 
@@ -37,7 +41,7 @@ Reglas estrictas:
 2. Si la herramienta falla o no devuelve datos, pedí disculpas e indicá que estás teniendo problemas técnicos. No des horarios de memoria.
 3. Si preguntan por cancelaciones, cuidados posteriores u otra cosa que no esté en este mensaje, decí que no tenés esa información y que le escriban a Agustina por Instagram (@luminails._studio). No inventes políticas.
 4. Si preguntan cosas que no tienen relación con uñas, turnos o el salón, respondé cortésmente que solo podés ayudar con la agenda de LumiNails Studio.
-5. Tu objetivo final es que la clienta elija el turno en la pantalla: cuando le confirmes horarios disponibles, decile que toque "Ir al calendario" (o el calendario de la pantalla) para elegir el horario y pagar la seña. Vos no reservás ni cobrás.
+5. Tu objetivo final es que la clienta elija el turno en la pantalla. Cuando consultes disponibilidad, la pantalla muestra debajo de tu mensaje un botón por cada horario libre. Mencioná brevemente los horarios y decile que toque el que prefiera: después de tocarlo le pedimos nombre y teléfono y le aparece el botón para pagar la seña con Mercado Pago. Vos no reservás ni cobrás ni pedís datos en el chat. Si no hay lugar ese día, ofrecé otro día con la herramienta.
 6. No pidas ni repitas datos personales como teléfono, DNI o tarjetas.`;
 }
 
@@ -88,6 +92,13 @@ function resolverDia(dia: unknown): string | null {
   return aClave(base + falta * 86400000);
 }
 
+const OPC = "_opciones"; // clave interna: se saca antes de pasarle el resultado a Gemini
+function opcion(s: { id: string; nombre: string }, fecha: string, hora: number): Opcion {
+  const [y, m, d] = fecha.split("-").map(Number);
+  const dia = DIAS[new Date(Date.UTC(y, m - 1, d)).getUTCDay()];
+  return { servicio: s.id, servicioNombre: s.nombre, fecha, hora, etiqueta: `${dia.slice(0, 3)} ${d}/${m} · ${formatearHora(hora)}` };
+}
+
 async function consultarDisponibilidad(args: Record<string, unknown>) {
   const s = servicioPor(args.servicio);
   if (!s) return { error: "Servicio desconocido. Los servicios son: semipermanente, kapping, soft-gel." };
@@ -98,7 +109,8 @@ async function consultarDisponibilidad(args: Record<string, unknown>) {
   const libres = mes[fecha];
   const nombreDia = DIAS[new Date(Date.UTC(y, m - 1, d)).getUTCDay()];
   if (!libres) return { error: "Fecha fuera de rango." };
-  return { servicio: s.nombre, fecha, dia: nombreDia, horarios_libres: libres.map(formatearHora), hay_lugar: libres.length > 0 };
+  const opciones = libres.slice(0, MAX_OPCIONES).map((h) => opcion(s, fecha, h));
+  return { servicio: s.nombre, fecha, dia: nombreDia, horarios_libres: libres.map(formatearHora), hay_lugar: libres.length > 0, [OPC]: opciones };
 }
 
 async function proximosDiasLibres(args: Record<string, unknown>) {
@@ -106,6 +118,7 @@ async function proximosDiasLibres(args: Record<string, unknown>) {
   if (!s) return { error: "Servicio desconocido. Los servicios son: semipermanente, kapping, soft-gel." };
   const a = ahoraAR();
   const dias: { fecha: string; dia: string; horarios_libres: string[] }[] = [];
+  const opciones: Opcion[] = [];
   for (let k = 0; k < 2 && dias.length < 4; k++) {
     const y = a.y + Math.floor((a.m + k) / 12), m = (a.m + k) % 12;
     const mes = await cargarMes(y, m, s.duracionMin);
@@ -113,10 +126,11 @@ async function proximosDiasLibres(args: Record<string, unknown>) {
       if (mes[fecha].length && dias.length < 4) {
         const [yy, mm, dd] = fecha.split("-").map(Number);
         dias.push({ fecha, dia: DIAS[new Date(Date.UTC(yy, mm - 1, dd)).getUTCDay()], horarios_libres: mes[fecha].map(formatearHora) });
+        for (const h of mes[fecha].slice(0, 2)) if (opciones.length < MAX_OPCIONES) opciones.push(opcion(s, fecha, h)); // los 2 primeros de cada día
       }
     }
   }
-  return { servicio: s.nombre, proximos_dias: dias };
+  return { servicio: s.nombre, proximos_dias: dias, [OPC]: opciones };
 }
 
 async function ejecutar(nombre: string, args: Record<string, unknown>) {
@@ -135,7 +149,7 @@ async function ejecutar(nombre: string, args: Record<string, unknown>) {
 type Parte = { text?: string; functionCall?: { name: string; args?: Record<string, unknown> }; functionResponse?: unknown; [k: string]: unknown };
 type Contenido = { role: "user" | "model"; parts: Parte[] };
 
-export async function responderMia(historial: Mensaje[]): Promise<string> {
+export async function responderMia(historial: Mensaje[]): Promise<{ texto: string; opciones: Opcion[] }> {
   const clave = process.env.GEMINI_API_KEY;
   if (!clave) throw new Error("Falta GEMINI_API_KEY");
   const base = process.env.GEMINI_BASE_URL ?? "https://generativelanguage.googleapis.com";
@@ -167,6 +181,7 @@ export async function responderMia(historial: Mensaje[]): Promise<string> {
     throw new Error(ultimo || "Gemini sin respuesta");
   }
 
+  let opciones: Opcion[] = [];
   for (let vuelta = 0; vuelta < 5; vuelta++) {
     const r = await pedir({
       systemInstruction: { parts: [{ text: sistema() }] },
@@ -181,14 +196,18 @@ export async function responderMia(historial: Mensaje[]): Promise<string> {
     if (!llamadas.length) {
       const texto = cand.parts.map((p) => p.text ?? "").join("").trim();
       if (!texto) throw new Error("Gemini respondió vacío");
-      return texto.replace(/\*+/g, "").replace(/^#+\s*/gm, "");
+      return { texto: texto.replace(/\*+/g, "").replace(/^#+\s*/gm, ""), opciones };
     }
     contents.push(cand);
+    opciones = []; // solo valen los botones de la consulta más reciente
     const respuestas = await Promise.all(
-      llamadas.map(async (p) => ({
-        functionResponse: { name: p.functionCall!.name, response: { resultado: await ejecutar(p.functionCall!.name, p.functionCall!.args ?? {}) } },
-      })),
+      llamadas.map(async (p) => {
+        const { [OPC]: o, ...resultado } = (await ejecutar(p.functionCall!.name, p.functionCall!.args ?? {})) as Record<string, unknown>;
+        if (Array.isArray(o)) opciones.push(...(o as Opcion[]));
+        return { functionResponse: { name: p.functionCall!.name, response: { resultado } } };
+      }),
     );
+    opciones = opciones.slice(0, MAX_OPCIONES);
     contents.push({ role: "user", parts: respuestas });
   }
   throw new Error("Demasiadas vueltas de herramientas");

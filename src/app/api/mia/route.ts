@@ -29,7 +29,8 @@ export async function POST(req: Request) {
   }
 
   try {
-    return NextResponse.json({ respuesta: await responderMia(mensajes) });
+    const { texto, opciones } = await responderMia(mensajes);
+    return NextResponse.json({ respuesta: texto, opciones });
   } catch (e) {
     console.error("[mia]", e instanceof Error ? e.message : e);
     return NextResponse.json({ respuesta: MENSAJE_FALLA, falla: true });

@@ -3,7 +3,16 @@
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 
-type Msg = { rol: "user" | "mia"; texto: string };
+type Opcion = { servicio: string; servicioNombre: string; fecha: string; hora: number; etiqueta: string };
+type Msg = { rol: "user" | "mia"; texto: string; opciones?: Opcion[]; local?: boolean };
+
+const MESES = ["enero","febrero","marzo","abril","mayo","junio","julio","agosto","septiembre","octubre","noviembre","diciembre"];
+const DIAS = ["domingo","lunes","martes","miércoles","jueves","viernes","sábado"];
+const hhmm = (min: number) => `${String(Math.floor(min / 60)).padStart(2, "0")}:${String(min % 60).padStart(2, "0")}`;
+const cuando = (o: Opcion) => {
+  const [y, m, d] = o.fecha.split("-").map(Number);
+  return `${DIAS[new Date(Date.UTC(y, m - 1, d)).getUTCDay()]} ${d} de ${MESES[m - 1]} · ${hhmm(o.hora)} hs`;
+};
 
 const SALUDO: Msg = {
   rol: "mia",
@@ -16,10 +25,15 @@ export function Mia() {
   const [msgs, setMsgs] = useState<Msg[]>([SALUDO]);
   const [texto, setTexto] = useState("");
   const [cargando, setCargando] = useState(false);
+  const [elegida, setElegida] = useState<Opcion | null>(null);
+  const [nombre, setNombre] = useState("");
+  const [telefono, setTelefono] = useState("");
+  const [yendo, setYendo] = useState(false);
+  const [errorPago, setErrorPago] = useState("");
   const fin = useRef<HTMLDivElement>(null);
   const campo = useRef<HTMLInputElement>(null);
 
-  useEffect(() => { fin.current?.scrollIntoView({ block: "end" }); }, [msgs, cargando, abierta]);
+  useEffect(() => { fin.current?.scrollIntoView({ block: "end" }); }, [msgs, cargando, abierta, elegida]);
   useEffect(() => { if (abierta) campo.current?.focus(); }, [abierta]);
   useEffect(() => {
     if (!abierta) return;
@@ -34,13 +48,38 @@ export function Mia() {
     const nuevos: Msg[] = [...msgs, { rol: "user", texto: limpio }];
     setMsgs(nuevos); setTexto(""); setCargando(true);
     try {
-      const r = await fetch("/api/mia", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ mensajes: nuevos }) });
+      const r = await fetch("/api/mia", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ mensajes: nuevos.filter((m) => !m.local) }) });
       const j = await r.json();
-      setMsgs([...nuevos, { rol: "mia", texto: j.respuesta ?? "Perdoná, estoy teniendo problemas técnicos. Probá de nuevo en unos minutos." }]);
+      setMsgs([...nuevos, { rol: "mia", texto: j.respuesta ?? "Perdoná, estoy teniendo problemas técnicos. Probá de nuevo en unos minutos.", opciones: Array.isArray(j.opciones) ? j.opciones : [] }]);
     } catch {
       setMsgs([...nuevos, { rol: "mia", texto: "Perdoná, estoy teniendo problemas técnicos. Probá de nuevo en unos minutos." }]);
     } finally { setCargando(false); }
   }
+
+  function elegir(o: Opcion) {
+    setElegida(o); setErrorPago("");
+    setMsgs((ms) => [...ms, { rol: "user", texto: `Quiero el turno de ${o.servicioNombre} el ${cuando(o)}`, local: true }]);
+  }
+
+  // Reserva el horario (10 minutos) y abre Mercado Pago para pagar la seña.
+  async function reservarYPagar() {
+    if (!elegida || yendo) return;
+    setYendo(true); setErrorPago("");
+    try {
+      const r = await fetch("/api/reservar", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ servicio: elegida.servicio, adicionales: [], fecha: elegida.fecha, hora: elegida.hora, nombre, telefono }),
+      });
+      const j = await r.json();
+      if (!r.ok) { setErrorPago(j.error ?? "No pudimos reservar. Probá de nuevo."); setYendo(false); return; }
+      const p = await fetch("/api/pagar", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ turnoId: j.turnoId }) });
+      const k = await p.json();
+      if (p.ok && k.url) { window.location.href = k.url; return; }
+      setErrorPago(k.error ?? "No pudimos iniciar el pago. Probá de nuevo.");
+    } catch { setErrorPago("Sin conexión. Probá de nuevo."); }
+    setYendo(false);
+  }
+  const datosOk = nombre.trim().length >= 2 && telefono.replace(/\D/g, "").length >= 8;
 
   return (
     <>
@@ -66,8 +105,36 @@ export function Mia() {
           </header>
           <div className="flex-1 space-y-3 overflow-y-auto px-4 py-4" aria-live="polite">
             {msgs.map((m, i) => (
-              <p key={i} className={`max-w-[85%] whitespace-pre-line rounded-2xl px-4 py-2.5 leading-relaxed ${m.rol === "user" ? "ml-auto bg-hueso" : "bg-rosa-suave/60"}`}>{m.texto}</p>
+              <div key={i} className={m.rol === "user" ? "ml-auto max-w-[85%]" : "max-w-[92%]"}>
+                <p className={`whitespace-pre-line rounded-2xl px-4 py-2.5 leading-relaxed ${m.rol === "user" ? "bg-hueso" : "bg-rosa-suave/60"}`}>{m.texto}</p>
+                {m.opciones && m.opciones.length > 0 && !elegida && i === msgs.length - 1 && (
+                  <div className="mt-2 flex flex-wrap gap-2" role="group" aria-label="Horarios libres">
+                    {m.opciones.map((o) => (
+                      <button key={o.servicio + o.fecha + o.hora} type="button" onClick={() => elegir(o)}
+                        className="min-h-11 rounded-full bg-white px-4 text-sm font-semibold ring-2 ring-salvia hover:bg-salvia">{o.etiqueta}</button>
+                    ))}
+                  </div>
+                )}
+              </div>
             ))}
+            {elegida && (
+              <div className="rounded-2xl bg-rosa-suave/60 p-4">
+                <p className="font-bold">{elegida.servicioNombre}</p>
+                <p className="capitalize">{cuando(elegida)}</p>
+                <p className="mt-1 text-sm">Para guardarte el horario necesitamos tus datos. Después pagás la seña de $2.000 con Mercado Pago.</p>
+                <label className="mt-3 block text-sm font-semibold">Nombre
+                  <input value={nombre} onChange={(e) => setNombre(e.target.value)} autoComplete="name" className="mt-1 block min-h-11 w-full rounded-xl bg-white px-3 text-base ring-1 ring-cacao/25" />
+                </label>
+                <label className="mt-2 block text-sm font-semibold">Teléfono (WhatsApp)
+                  <input value={telefono} onChange={(e) => setTelefono(e.target.value)} inputMode="tel" autoComplete="tel" className="mt-1 block min-h-11 w-full rounded-xl bg-white px-3 text-base ring-1 ring-cacao/25" />
+                </label>
+                {errorPago && <p className="mt-2 text-sm font-semibold" role="alert">{errorPago}</p>}
+                <button type="button" onClick={reservarYPagar} disabled={!datosOk || yendo} className="btn-cta mt-3 w-full disabled:opacity-50">
+                  {yendo ? "Abriendo Mercado Pago…" : "Pagar seña de $2.000"}
+                </button>
+                <button type="button" onClick={() => { setElegida(null); setErrorPago(""); }} className="mt-2 block w-full text-center text-sm font-semibold underline underline-offset-4">Elegir otro horario</button>
+              </div>
+            )}
             {cargando && <p className="max-w-[85%] rounded-2xl bg-rosa-suave/60 px-4 py-2.5" role="status">MIA está mirando la agenda…</p>}
             <div ref={fin} />
           </div>
