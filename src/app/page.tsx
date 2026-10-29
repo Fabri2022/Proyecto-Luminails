@@ -10,7 +10,7 @@ import { TESTIMONIOS } from "@/data/testimonios";
 import { ADICIONALES } from "@/data/servicios";
 import { CarruselServicios, type TarjetaCarrusel } from "@/components/CarruselServicios";
 import { CarruselOpiniones } from "@/components/CarruselOpiniones";
-import { WHATSAPP_TXT, urlWhatsApp } from "@/components/Legal";
+import { urlWhatsApp } from "@/components/Legal";
 
 function Destello({ className = "" }: { className?: string }) {
   return (
@@ -285,36 +285,41 @@ function Pie() {
           height={86}
           className="mx-auto h-10 w-auto"
         />
-        <a
-          href="https://www.instagram.com/luminails._studio"
-          target="_blank"
-          rel="noopener noreferrer"
-          aria-label="Seguinos en Instagram: @luminails._studio"
-          className="mx-auto mt-5 inline-flex min-h-12 items-center gap-3 rounded-full border border-blush/40 py-1.5 pl-1.5 pr-5 font-semibold hover:bg-blush/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blush"
-        >
-          <span className="flex h-9 w-9 items-center justify-center rounded-full bg-blush text-cacao">
-            <svg viewBox="0 0 24 24" aria-hidden="true" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M4 8h3l1.5-2h7L17 8h3v11H4z" />
-              <circle cx="12" cy="13" r="3.5" />
-            </svg>
-          </span>
-          Seguinos
-        </a>
-        <a
-          href={urlWhatsApp("Hola Agustina, te escribo desde la app de LumiNails Studio.")}
-          target="_blank"
-          rel="noopener noreferrer"
-          aria-label={`Escribile a Agustina por WhatsApp: ${WHATSAPP_TXT}`}
-          className="mx-auto mt-3 inline-flex min-h-12 items-center gap-3 rounded-full border border-blush/40 px-5 font-semibold hover:bg-blush/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blush"
-        >
-          WhatsApp · {WHATSAPP_TXT}
-        </a>
-        <p className="mt-4">
-          <a href="/arrepentimiento" className="inline-flex min-h-12 items-center rounded-full bg-blush px-5 font-bold text-cacao">Botón de arrepentimiento · Cancelar turno</a>
-        </p>
-        <p className="mt-4">
-          <a href="/opinion" className="inline-flex min-h-12 items-center rounded-full border border-blush/40 px-5 font-semibold hover:bg-blush/10">★ Dejá tu opinión</a>
-        </p>
+        <div className="mt-5 flex flex-wrap items-center justify-center gap-3">
+          <a
+            href="https://www.instagram.com/luminails._studio"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Seguinos en Instagram: @luminails._studio"
+            className="inline-flex h-12 w-40 items-center gap-3 rounded-full border border-blush/40 pl-1.5 pr-5 font-semibold hover:bg-blush/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blush"
+          >
+            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-blush text-cacao">
+              <svg viewBox="0 0 24 24" aria-hidden="true" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M4 8h3l1.5-2h7L17 8h3v11H4z" />
+                <circle cx="12" cy="13" r="3.5" />
+              </svg>
+            </span>
+            <span className="flex-1 text-center">Seguinos</span>
+          </a>
+          <a
+            href={urlWhatsApp("Hola Agustina, te escribo desde la app de LumiNails Studio.")}
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Escribinos por WhatsApp"
+            className="inline-flex h-12 w-40 items-center gap-3 rounded-full border border-blush/40 pl-1.5 pr-5 font-semibold hover:bg-blush/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blush"
+          >
+            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-blush text-cacao">
+              <svg viewBox="0 0 24 24" aria-hidden="true" className="h-5 w-5" fill="currentColor">
+                <path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2Zm0 1.8a8.2 8.2 0 1 1-4.2 15.2l-.3-.2-2.9.8.8-2.8-.2-.3A8.2 8.2 0 0 1 12 3.800Zm-3 3.700c-.2 0-.5.1-.7.4-.3.300-.9.900-.9 2.200s.9 2.500 1 2.700c.1.200 1.800 2.900 4.500 4 2.200.9 2.700.7 3.200.7.500-.1 1.600-.7 1.800-1.300.2-.6.2-1.200.2-1.300-.1-.1-.2-.2-.5-.3l-1.700-.8c-.2-.1-.4-.1-.6.100l-.8 1c-.1.200-.3.200-.5.100-.3-.1-1.100-.4-2.100-1.300-.8-.7-1.300-1.500-1.500-1.800-.1-.3 0-.4.100-.5l.4-.5c.1-.1.2-.3.2-.4.100-.2 0-.3 0-.4l-.8-1.900c-.2-.5-.4-.4-.6-.4Z" />
+              </svg>
+            </span>
+            <span className="flex-1 text-center">Escribinos</span>
+          </a>
+        </div>
+        <div className="mt-4 flex flex-wrap items-center justify-center gap-3">
+          <a href="/arrepentimiento" className="inline-flex h-12 items-center rounded-full bg-blush px-5 font-bold text-cacao">Botón de arrepentimiento</a>
+          <a href="/opinion" className="inline-flex h-12 items-center rounded-full border border-blush/40 px-5 font-semibold hover:bg-blush/10">★ Dejá tu opinión</a>
+        </div>
         <p className="mt-4 flex justify-center gap-4">
           <a href="/privacidad" className="underline underline-offset-4">Privacidad</a>
           <a href="/terminos" className="underline underline-offset-4">Términos y condiciones</a>
